@@ -1,0 +1,176 @@
+<WinShutdownTimer>:
+    rows: 7
+    cols: 1
+    padding: root.widget_padding
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: '.\Images\Brushed_Metal_WM.png'
+
+    GridLayout:
+        id: cmd_group
+        rows: 2
+        cols: 7
+        size_hint_y: None
+        height: 70
+        padding: root.widget_padding
+        ToggleButton:
+            id: shutdown
+            text: 'Shutdown'
+            font_size: root.font_size
+            state: 'down'
+            group: 'cmd'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: restart
+            text: 'Restart'
+            font_size: root.font_size
+            state: 'normal'
+            group: 'cmd'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: hibernate
+            text: 'Hibernate'
+            font_size: root.font_size
+            state: 'normal'
+            group: 'cmd'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: logoff
+            text: 'Log Off'
+            font_size: root.font_size
+            state: 'normal'
+            group: 'cmd'
+            allow_no_selection: False
+            disabled: root.preset_disabled
+
+    GridLayout:
+        rows: 2
+        cols: 9
+        size_hint_y: None
+        height: 70
+        padding: root.widget_padding
+        ToggleButton:
+            id: set20
+            text: '20 min'
+            font_size: root.font_size
+            group: 'preset_duration'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+            on_release: root.clear_timer(), root.set_timer( 20 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: set40
+            text: '40 min'
+            font_size: root.font_size
+            group: 'preset_duration'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+            on_release: root.clear_timer(), root.set_timer( 40 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: set60
+            text: '60 min'
+            font_size: root.font_size
+            group: 'preset_duration'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+            on_release: root.clear_timer(), root.set_timer( 60 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: set90
+            text: '90 min'
+            font_size: root.font_size
+            group: 'preset_duration'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+            on_release: root.clear_timer(), root.set_timer( 90 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        ToggleButton:
+            id: set120
+            text: '120 min'
+            font_size: root.font_size
+            group: 'preset_duration'
+            disabled: root.preset_disabled
+            allow_no_selection: False
+            on_release: root.clear_timer(), root.set_timer( 120 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+
+    GridLayout:
+        rows: 1
+        cols: 5
+        size_hint_y: None
+        height: 70
+        padding: root.widget_padding
+        Label:
+            size_hint_x: None
+            width: 200
+        Button:
+            id: minus15
+            text: '- 15 min'
+            font_size: root.font_size
+            size_hint: 0.7, 0.4
+            disabled: root.sub_time_disabled
+            on_release: root.sub_time( 15 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        Button:
+            id: plus15
+            text: '+ 15 min'
+            font_size: root.font_size
+            size_hint: 0.7, 0.4
+            disabled: root.preset_disabled
+            on_release: root.add_time( 15 * 60 ), root.toggle_start_pause_status(), root.toggle_sub_time_status()
+        Label:
+            size_hint_x: None
+            width: 200
+
+    GridLayout:
+        rows: 1
+        cols: 1
+        Label:
+            text: "{:02d}:{:02d}:{:02d}".format( int( divmod( divmod( root.countdown, 60 )[ 0 ] , 60 )[ 0 ] ), int( divmod( divmod( root.countdown, 60 )[ 0 ], 60 )[ 1 ] ), int( divmod( root.countdown, 60 )[ 1 ] ) )
+            font_size: 100
+
+    BoxLayout:
+        padding: 70, 0, 70, 15
+        ToggleButton:
+            id: start_pause
+            text: root.start_pause
+            font_size: root.font_size + 10
+            size_hint: 0.7, 0.4
+            state: 'normal'
+            disabled: root.start_pause_disabled
+            on_release: root.start_stop_timer(), root.toggle_start_pause_text(), root.toggle_start_pause_status(), root.toggle_preset_status(), root.toggle_abort_status(), root.toggle_sub_time_status(), root.toggle_preset_state()
+        Label:
+            size_hint_x: None
+            width: root.spacer_width
+        Button:
+            id: abort
+            text: 'Abort'
+            font_size: root.font_size + 10
+            size_hint: 0.7, 0.4
+            background_color: root.abort_background_color
+            disabled: root.abort_disabled
+            on_release: root.reset()
