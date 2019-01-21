@@ -1,0 +1,51 @@
+<CustomPopup>:
+    id: popup
+    # title: root.title
+    title_size: 30
+    title_align: 'center'
+    size_hint: 0.8, 0.8
+    auto_dismiss: False
+    pos_hint: { 'x' : 0.1 , 'y' : 0.1 }
+
+    GridLayout:
+        cols: 1
+        rows: 2
+        spacing: 15
+        padding: 15
+
+        Label:
+            id: content
+            text: "{:02d}".format( int( root.countdown ) )
+            font_size: 25
+            padding: 15, 25
+            size_hint_y: None
+            text_size: self.width, None
+            height: self.texture_size[ 1 ]
+            halign: 'center'
+
+        GridLayout:
+            cols: 2
+            rows: 1
+
+            AnchorLayout:
+                anchor_x : 'center'
+                anchor_y : 'bottom'
+                padding: 20
+
+                Button:
+                    id: yes
+                    text: 'Yes'
+                    font_size: 30
+                    size_hint: 0.8, 0.4
+                    on_press: root.start_stop_timer()
+
+            AnchorLayout:
+                anchor_x : 'center'
+                anchor_y : 'bottom'
+                padding: 20
+
+                Button:
+                    id: no
+                    text: 'No'
+                    font_size: 30
+                    size_hint: 0.8, 0.4
