@@ -222,7 +222,9 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
             # If the Shutdown button is down, then
             if self.cmd == 'Shutdown':
                 # Compile the cmd string for a shutdown
-                final_cmd = 'shutdown /s' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
+                # final_cmd = 'shutdown /s' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
+                # final_cmd = 'shutdown /s /f' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
+                final_cmd = 'shutdown /p' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
             # Else, if the Restart button is down, then
             elif self.cmd == 'Restart':
                 # Compile the cmd string for a restart
@@ -234,7 +236,7 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
             # Else, if none of the above, compile a cmd string for logoff
             else:
                 final_cmd = 'shutdown /l'
-            # send final cmd to windows cmd shell
+            # # send final cmd to windows cmd shell
             subprocess.call( final_cmd, shell = True )
             # Use print statement during testing to verify final_cmd without sending the command to the Windows shell
             # print( final_cmd )
