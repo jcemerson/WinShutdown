@@ -115,14 +115,14 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
         def on_help( systray ):
             ctypes.windll.user32.MessageBoxW( None, u'Help options to be defined in a future release', u'Help', 0 )
 
-        def on_abort( systray ):
-            self.reset()
+        # def on_abort( systray ):
+        #     self.reset()
 
         def on_about( systray ):
             ctypes.windll.user32.MessageBoxW( None, u'WinShutdown Version 1.4\n\nBy: WutDuk?\n\nhttps://github.com/jcemerson', u'About', 0 )
 
         menu_options = ( ( 'Help', None, on_help ),
-                        ( 'Abort', None, on_abort ),
+                        # ( 'Abort', None, on_abort ),
                         ( 'About', None, on_about ) )
 
         # # Set tray icon options
@@ -188,7 +188,6 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
                 self.imminent_popup.ids.yes.trigger_action( 0 )
             elif keycode == 110 and text == 'n' and modifiers == []:
                 self.imminent_popup.ids.no.trigger_action( 0 )
-
 
 
     # Close system tray icon
