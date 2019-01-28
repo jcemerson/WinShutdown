@@ -40,9 +40,18 @@ KivyConfigCheck.WindowsCheck()
 
 
 # Set config.ini setting for this instance of the app only (as opposed to writing to the file which would impact ALL Kivy apps)
-Config.set( 'graphics', 'fullscreen', 0 )
-Config.set( 'graphics', 'resizable', 0 )
-Config.set( 'kivy', 'exit_on_escape', 0 )
+Config.set( 'graphics',
+            'fullscreen',
+            0,
+)
+Config.set( 'graphics',
+            'resizable',
+             0,
+)
+Config.set( 'kivy',
+            'exit_on_escape',
+            0,
+)
 Config.set( 'kivy', 'window_icon', '.\Images\power-on.png')
 
 
@@ -59,8 +68,8 @@ class ImminentPopup( Popup ):
 
     def __init__( self, cmd ):
         super( ImminentPopup, self ).__init__()
-        self.title = 'Imminent {cmd}!'.format( cmd = cmd )
-        self.label_text = 'By forcing an active countdown to 00:00:00 you are about to initiate an [i][b]imminent {cmd}[/b][/i].\n\nDo you wish to continue?'.format( cmd = cmd )
+        self.title = f'Imminent {cmd}!'
+        self.label_text = f'By forcing an active countdown to 00:00:00 you are about to initiate an [i][b]imminent {cmd}[/b][/i].\n\nDo you wish to continue?'
 
 
 
@@ -107,7 +116,6 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
         # Define system tray icon
         icon_path = os.path.join( os.path.dirname(__file__), '.\Images\powerbutton_UAh_icon.ico' )
 
-        # shutdown_called = False
         # Context Menu Options -- NOTE: Quit is REQUIRED
         def on_quit( systray ):
             App.get_running_app().stop()
@@ -133,6 +141,7 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
 
         # Bind to keyboard bey press
         Window.bind( on_key_down = self.key_action )
+
 
     # Set keybindings -- I'm not exactly sure what "arg" is capturing, I just know I needed to capture the argument for this to work
     def key_action( self, keyboard, keycode, arg, text, modifiers ):
@@ -221,13 +230,13 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
             # If the Shutdown button is down, then
             if self.cmd == 'Shutdown':
                 # Compile the cmd string for a shutdown
-                # final_cmd = 'shutdown /s' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
-                # final_cmd = 'shutdown /s /f' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
-                final_cmd = 'shutdown /p' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
+                # final_cmd = f'shutdown /s' + ' ' + d_cmd + ' ' + c_cmd
+                # final_cmd = f'shutdown /s /f' + ' ' + d_cmd + ' ' + c_cmd
+                final_cmd = f'shutdown /p' + ' ' + d_cmd + ' ' + c_cmd
             # Else, if the Restart button is down, then
             elif self.cmd == 'Restart':
                 # Compile the cmd string for a restart
-                final_cmd = 'shutdown /r' + ' ' + d_cmd + ' ' + c_cmd.format( cmd = self.cmd )
+                final_cmd = f'shutdown /r' + ' ' + d_cmd + ' ' + c_cmd
             # Else, if the Hibernate button is down, then
             elif self.cmd == 'Hibernate':
                 # Compile the cmd string for a hibernate
@@ -363,7 +372,8 @@ class WinShutdownTimer( GridLayout, ToggleButtonBehavior ):
         # Cancel any current animation in progress
         Animation.cancel_all( self )
         # Define the rules for Animation; i.e., ( <where we are going>, <where we're coming from> )
-        self.anim = Animation( countdown = 0, duration = self.countdown )
+        self.anim = Animation( countdown = 0,
+                               duration = self.countdown, )
         # on_release of Start/Pause button, if the down and there is still time on the clock, then
         if self.ids.start_pause.state == 'down' and self.countdown > 0:
             # On completion of the countdown, call function to initiate the shutdown process
