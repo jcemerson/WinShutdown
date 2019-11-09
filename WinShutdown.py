@@ -21,6 +21,8 @@ if sys.executable.endswith("pythonw.exe"):
 import json
 import ast
 import kivy
+import ctypes
+import subprocess
 from infi.systray import SysTrayIcon
 from kivy import Config
 from kivy.app import App
@@ -37,9 +39,9 @@ from kivy.properties import NumericProperty
 from kivy.properties import BooleanProperty
 from kivy.properties import ListProperty
 from kivy.clock import Clock
+import KivyConfigCheck
 
-
-# Supported Kivy version required for operation. Older version may work too,
+# Supported Kivy versions required for operation. Older version may work too,
 # but they're not supported. You can remove or modify this setting at your own
 # risk.
 kivy.require('1.10.1')
@@ -73,20 +75,6 @@ Config.set(
     '.\Images\power-on.png'
 )
 
-platform = sys.platform
-
-if platform == 'win32':
-    Config.set(
-        'kivy',
-        'window_icon',
-        '.\Images\power-on.png'
-    )
-elif platform == 'linux' or platform == 'linux2':
-    Config.set(
-        'kivy',
-        'window_icon',
-        './Images/power-on.png'
-    )
 
 # Import Window for Keybindings functionality -- When placed before config,
 # Kivy would flicker during loading. Relocated lower in the process to ensure
@@ -99,7 +87,7 @@ Window.fullscreen = False
 # Set the path to the user settings file:
 file_path = os.path.dirname(os.path.realpath(__file__))
 filename = 'user_settings.json'
-user_settings_file = file_path + '\' + filename
+user_settings_file = file_path + '\\' + filename
 
 
 # Class defining popup presented when User forces countdown to 0
@@ -186,7 +174,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
 
 
     def __init__(self):
-        super(LinShutdownTimer, self).__init__()
+        super(WinShutdownTimer, self).__init__()
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
 
@@ -237,10 +225,8 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         )
 
         # Bind to closing the window
-        Window.bind(on_close = self.close_systray)
+        Window.bind(on_close=self.close_systray)
 
-        # Bind to keyboard key press
-        Window.bind(on_key_down = self.key_action)
 
     # Close system tray icon
     def close_systray(self, *args):
@@ -330,7 +316,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
                 self.ids.shutdown.trigger_action(0)
             elif keycode[0] == 114:
                 self.ids.restart.trigger_action(0)
-            elif keycode[0] == 112:
+            elif keycode[0] == 104:
                 self.ids.hibernate.trigger_action(0)
             elif keycode[0] == 108:
                 self.ids.logoff.trigger_action(0)
