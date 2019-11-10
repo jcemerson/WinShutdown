@@ -308,7 +308,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard = None
 
-
+# See \kivy\core\window\__init__.py for keycode details
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if self.preset_keybinding_enabled == True:
             # cmd buttons
