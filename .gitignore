@@ -2,6 +2,10 @@
 # Created by https://www.gitignore.io/api/git,python,windows
 # Edit at https://www.gitignore.io/?templates=git,python,windows
 
+### Local Files ###
+/Testing*
+/WinShutdown_v1.4_exe*
+
 ### Git ###
 *.git/
 *_git/
