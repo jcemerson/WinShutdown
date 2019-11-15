@@ -550,7 +550,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             countdown=0,
             duration=self.countdown,
         )
-        # on_release of Start/Pause button, if the down and there is still
+        # on_release of Start/Pause button, if it's down and there is still
         # time on the clock, then
         if self.ids.start_pause.state == 'down' and self.countdown > 0:
             # On completion of the countdown, call function to initiate the
