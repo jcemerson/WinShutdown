@@ -115,7 +115,7 @@ class FinalPopup(Popup):
         Animation.cancel_all(self)
         self.anim = Animation(countdown=0, duration=self.countdown)
         self.anim.bind(on_complete=App.get_running_app().stop)
-        self.anim.bind(on_complete = App.get_running_app().root.close_systray)
+        self.anim.bind(on_complete=App.get_running_app().root.close_systray)
         self.anim.start(self)
 
 
@@ -308,6 +308,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard = None
 
+
 # See \kivy\core\window\__init__.py for keycode details
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if self.preset_keybinding_enabled == True:
@@ -372,6 +373,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
     # Function called when countdown reaches 0 to execute the selected
     # cmd from the cmd_group togglebuttons
     def initiate_shutdown(self, *args):
+        cmd = self.cmd
         # Provide the reason for the restart or shutdown. These events are
         # documented as "Other Planned"
         d_cmd = '/d p:0:0'
@@ -383,21 +385,21 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         # countdown is at 0, then
         if self.countdown == 0:
             # If the Shutdown button is down, then
-            if self.cmd == 'Shutdown':
+            if cmd == 'Shutdown':
                 # Compile the cmd string for a shutdown
                 # final_cmd = f'shutdown /s' + ' ' + d_cmd + ' ' + c_cmd
                 # final_cmd = f'shutdown /s /f' + ' ' + d_cmd + ' ' + c_cmd
                 final_cmd = f'shutdown /p {d_cmd} {c_cmd}'
             # Else, if the Restart button is down, then
-            elif self.cmd == 'Restart':
+            elif cmd == 'Restart':
                 # Compile the cmd string for a restart
                 final_cmd = f'shutdown /r {d_cmd} {c_cmd}'
             # Else, if the Hibernate button is down, then
-            elif self.cmd == 'Hibernate':
+            elif cmd == 'Hibernate':
                 # Compile the cmd string for a hibernate
                 final_cmd = 'shutdown /h'
             # Else, if none of the above, compile a cmd string for logoff
-            else:
+            elif cmd == 'Log Off':
                 final_cmd = 'shutdown /l'
             # Instantiate and open the final popup then start final timer
             self.final_popup = FinalPopup()
@@ -540,8 +542,6 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
 
 
     def start_stop_timer(self):
-        # Get current cmd value
-        self.get_cmd()
         # Cancel any current animation in progress
         Animation.cancel_all(self)
         # Define the rules for Animation; i.e., (where we are going, where
@@ -553,6 +553,8 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         # on_release of Start/Pause button, if it's down and there is still
         # time on the clock, then
         if self.ids.start_pause.state == 'down' and self.countdown > 0:
+            # Set current cmd value
+            self.get_cmd()
             # On completion of the countdown, call function to initiate the
             # shutdown process
             self.anim.bind(on_complete=self.initiate_shutdown)
