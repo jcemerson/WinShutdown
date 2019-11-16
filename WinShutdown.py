@@ -1,6 +1,6 @@
 __author__ = 'WutDuk? https://github.com/jcemerson'
-__date__ = '20191107'
-__version__ = '1.6'
+__date__ = '20191116'
+__version__ = '1.7'
 __description__ = """
     Yet another Windows Shutdown application.
 """
@@ -92,7 +92,6 @@ user_settings_file = file_path + '\\' + filename
 
 # Class defining popup presented when User forces countdown to 0
 class ImminentPopup(Popup):
-
     label_text = StringProperty('')
 
     def __init__(self, cmd):
@@ -104,22 +103,22 @@ class ImminentPopup(Popup):
 # Class defining popup presented when final command is sent prior to the
 # App auto-closing
 class FinalPopup(Popup):
-
     countdown = NumericProperty(5.9)
 
     def __init__(self):
         super(FinalPopup, self).__init__()
 
-    # Function to start the countdown to App auto-closing
+    # Method to start the countdown to App auto-closing
     def start_final_timer(self):
         Animation.cancel_all(self)
         self.anim = Animation(countdown=0, duration=self.countdown)
+        self.anim.bind(on_complete=App.get_running_app().root.exec_cmd)
         self.anim.bind(on_complete=App.get_running_app().stop)
         self.anim.bind(on_complete=App.get_running_app().root.close_systray)
         self.anim.start(self)
 
 
-# Main Class defining overall functions of the App
+# Main Class defining overall functionality of the App
 class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
     # Define default layout attributes
     font_size = 20
@@ -150,14 +149,16 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
     set120_state = StringProperty('normal')
     preset_status = BooleanProperty(True)
     preset_keybinding_enabled = BooleanProperty(True)
-
+    # Define -15min/+15min buttons' status
     sub_time_disabled = BooleanProperty(True)
     add_time_disabled = BooleanProperty(False)
-
+    # Establish countdown variable
     countdown = NumericProperty(0)
-
+    # Define Start/Pause button attributes
     start_pause = StringProperty('Start')
     start_pause_disabled = BooleanProperty(True)
+    # Establish final cmd string variable
+    final_cmd = StringProperty('')
 
     # Retrieve default settings if the file exists, else create the file and
     # set defaults
@@ -236,7 +237,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
     def apply_defaults(self):
         default_cmd = self.user_settings['default_cmd']
         default_time = self.user_settings['default_time']
-
+        # cmd_group buttons
         if default_cmd == 'shutdown':
             self.shutdown_btn_state = 'down'
         elif default_cmd == 'restart':
@@ -245,7 +246,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             self.hibernate_btn_state = 'down'
         elif default_cmd == 'log off':
             self.logoff_btn_state = 'down'
-
+        # time buttons
         if default_time == 'set20':
             self.set20_state = 'down'
             self.countdown = 20*60
@@ -261,12 +262,12 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         elif default_time == 'set120':
             self.set120_state = 'down'
             self.countdown = 120*60
-
+        # Enable Start/Pause and -15 min buttons
         self.start_pause_disabled = False
         self.sub_time_disabled = False
 
 
-    # Function to get the current cmd value
+    # Method to get the current cmd value
     def get_cmd(self):
         if self.ids.shutdown.state == 'down':
             self.cmd = 'Shutdown'
@@ -279,7 +280,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         return self.cmd
 
 
-    # Function to get the current time value
+    # Method to get the current time value
     def get_time(self):
         if self.ids.set20.state == 'down':
             self.time = 'set20'
@@ -309,7 +310,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         self._keyboard = None
 
 
-# See \kivy\core\window\__init__.py for keycode details
+    # See \kivy\core\window\__init__.py for keycode details
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
         if self.preset_keybinding_enabled == True:
             # cmd buttons
@@ -370,7 +371,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             self.preset_keybinding_enabled = True
 
 
-    # Function called when countdown reaches 0 to execute the selected
+    # Method called when countdown reaches 0 to execute the selected
     # cmd from the cmd_group togglebuttons
     def initiate_shutdown(self, *args):
         cmd = self.cmd
@@ -379,8 +380,6 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         d_cmd = '/d p:0:0'
         # Comment on the reason for the restart or shutdown.
         c_cmd = f'/c "Automated User-initiated {cmd} via WinShutdown"'
-        # build final cmd
-        final_cmd = ''
         # If the Start/Pause button is down (should say 'Pause') and the
         # countdown is at 0, then
         if self.countdown == 0:
@@ -389,28 +388,32 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
                 # Compile the cmd string for a shutdown
                 # final_cmd = f'shutdown /s' + ' ' + d_cmd + ' ' + c_cmd
                 # final_cmd = f'shutdown /s /f' + ' ' + d_cmd + ' ' + c_cmd
-                final_cmd = f'shutdown /p {d_cmd} {c_cmd}'
+                self.final_cmd = f'shutdown /p {d_cmd} {c_cmd}'
             # Else, if the Restart button is down, then
             elif cmd == 'Restart':
                 # Compile the cmd string for a restart
-                final_cmd = f'shutdown /r {d_cmd} {c_cmd}'
+                self.final_cmd = f'shutdown /r {d_cmd} {c_cmd}'
             # Else, if the Hibernate button is down, then
             elif cmd == 'Hibernate':
                 # Compile the cmd string for a hibernate
-                final_cmd = 'shutdown /h'
+                self.final_cmd = 'shutdown /h'
             # Else, if none of the above, compile a cmd string for logoff
             elif cmd == 'Log Off':
-                final_cmd = 'shutdown /l'
+                self.final_cmd = 'shutdown /l'
             # Instantiate and open the final popup then start final timer
             self.final_popup = FinalPopup()
             self.final_popup.open()
             self.popup_active = True
             self.final_popup.start_final_timer()
-            # send final cmd to windows cmd shell
-            subprocess.call(final_cmd, shell = True)
 
 
-    # Function to set the countdown timer. This doesn't add time.
+    # Method called by FinalPopup to execute self.final_cmd
+    def exec_cmd(self, *args):
+        # send final cmd to cmd shell
+        subprocess.call(final_cmd, shell = True)
+
+
+    # Method to set the countdown timer. This doesn't add time.
     # Instead it replaces time.
     def set_timer(self, button_time):
         # If the countdown is at 0, then
@@ -419,11 +422,11 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             # initiated the call
             self.countdown = button_time
 
-    # Function to clear the timer to 0
+    # Method to clear the timer to 0
     def clear_timer(self):
         self.countdown = 0
 
-    # Function to toggle the '-15 min' button's state
+    # Method to toggle the '-15 min' button's state
     def toggle_sub_time_status(self):
         # If the countdown is less than 15 minutes, then
         if self.countdown < 15 * 60:
@@ -434,7 +437,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         else:
             self.sub_time_disabled = False
 
-    # Fucntion to toggle the '+ 15 min' button status
+    # Method to toggle the '+ 15 min' button status
     def toggle_add_time_status(self):
         # If '+ 15 min' button is not disabled, set to disabled
         if self.add_time_disabled == False:
@@ -444,7 +447,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         elif self.countdown == 0 or self.add_time_disabled == True:
             self.add_time_disabled = False
 
-    # Function to toggle the Start/Pause button status
+    # Method to toggle the Start/Pause button status
     def toggle_start_pause_status(self):
         # If the countdown is greater than 0
         if self.countdown > 0:
@@ -455,7 +458,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             # this button, so it's disabled
             self.start_pause_disabled = True
 
-    # Function to toggle the Abort button state
+    # Method to toggle the Abort button state
     def toggle_abort_status(self):
         # If countdown is greater than 0 and the Start/Pause button
         # is down, then
@@ -469,7 +472,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             self.abort_background_color = [1, 1, 1, 1]
 
 
-    # Function to toggle the status of preset cmd buttons
+    # Method to toggle the status of preset cmd buttons
     # (20, 40, 60, 90, 120)
     def toggle_cmd_status(self):
         # If the Start/Pause button is down (countdown is active), then
@@ -486,7 +489,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         self.logoff_btn_disabled = self.preset_status
 
 
-    # Function to toggle the status of preset time buttons
+    # Method to toggle the status of preset time buttons
     # (20, 40, 60, 90, 120)
     def toggle_preset_status(self):
         # If the Start/Pause button is down (countdown is active), then
@@ -503,7 +506,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         self.set90_disabled = self.preset_status
         self.set120_disabled = self.preset_status
 
-    # Function to toggle the Start/Pause button state (up or down)
+    # Method to toggle the Start/Pause button state (up or down)
     def toggle_start_pause_state(self):
         # If Start/Pause says 'Start', then
         if self.start_pause == 'Start':
@@ -513,7 +516,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         else:
             self.ids.start_pause.state = 'down'
 
-    # Function to toggle the state of presets (up or down)
+    # Method to toggle the state of presets (up or down)
     def toggle_preset_state(self):
         # If countdown is at 0, the presets are in the 'up' state
         if self.countdown == 0:
@@ -523,14 +526,14 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             self.ids.set90.state = 'normal'
             self.ids.set120.state = 'normal'
 
-    # Function to toggle the state cmd buttons (up or down)
+    # Method to toggle the state cmd buttons (up or down)
     def toggle_cmd_state(self):
         self.ids.shutdown.state = 'normal'
         self.ids.restart.state = 'normal'
         self.ids.hibernate.state = 'normal'
         self.ids.logoff.state = 'normal'
 
-    # Function to toggle the Start/Pause text label of the button
+    # Method to toggle the Start/Pause text label of the button
     def toggle_start_pause_text(self):
         # If the Start/Pause button is down and the countdown is above 0, then
         if self.ids.start_pause.state == 'down' and self.countdown > 0:
@@ -555,14 +558,14 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         if self.ids.start_pause.state == 'down' and self.countdown > 0:
             # Set current cmd value
             self.get_cmd()
-            # On completion of the countdown, call function to initiate the
+            # On completion of the countdown, call method to initiate the
             # shutdown process
             self.anim.bind(on_complete=self.initiate_shutdown)
             # Start the animation
             self.anim.start(self)
 
 
-    # Function to add time to the current countdown (as opposed to resetting)
+    # Method to add time to the current countdown (as opposed to resetting)
     # v1.1 introduced the ability to edit a live countdown, so Start/Pause
     # state is no longer checked
     def add_time(self, button_time):
@@ -575,7 +578,7 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
         self.start_stop_timer()
 
 
-    # Function to subtract time from the current countdown (as opposed to
+    # Method to subtract time from the current countdown (as opposed to
     # resetting)
     def sub_time(self, button_time):
         # If subtracting time would set the countdown to 0 or less, then
@@ -610,20 +613,20 @@ class WinShutdownTimer(GridLayout, ToggleButtonBehavior):
             # The timer is then restarted again
             self.start_stop_timer()
 
-    # Function to initiate shutdown on 'Yes' response to pop-up
+    # Method to initiate shutdown on 'Yes' response to pop-up
     def popup_yes(self):
         self.countdown = 0
         self.initiate_shutdown()
         self.popup_active = False
 
-    # Function to dismiss the pop-up and restart the countdown
+    # Method to dismiss the pop-up and restart the countdown
     def popup_no(self):
         self.anim.start(self)
         self.toggle_add_time_status()
         self.sub_time_disabled = False
         self.popup_active = False
 
-    # Function to reset the entire app
+    # Method to reset the entire app
     def reset(self):
         Animation.cancel_all(self),
         self.clear_timer(),
